@@ -13,7 +13,7 @@ categories = ["api-bindings"]
 license = "MIT/Apache-2.0"
 
 [badges]
-maintenance = { status = "experimental" }
+maintenance = { status = "actively-developed" }
 
 [dependencies]
 rand = "0.7.0"
