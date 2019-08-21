@@ -156,7 +156,6 @@ impl GymClient {
             Ok(val) => Ok(val),
             Err(e)  => Err(e.into()),
         }
-
     }
 
     fn get(&self, route: String) -> GymResult<Value> {
