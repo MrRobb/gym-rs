@@ -3,9 +3,6 @@ extern crate gym;
 use gym::GymClient;
 
 fn main() {
-
-	println!("**********************************");
-
 	let client = GymClient::new("http://localhost:5000".to_string()).unwrap();
 	println!("already running environments:\n{:?}\n", client.get_envs().unwrap());
 
@@ -34,6 +31,4 @@ fn main() {
 		println!("Finished episode {} with total reward {}", ep, tot_reward);
 	}
 	let _ = env.monitor_stop();
-
-	println!("**********************************");
 }

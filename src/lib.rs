@@ -1,3 +1,4 @@
+
 extern crate serde;
 extern crate serde_json;
 extern crate reqwest;
@@ -7,7 +8,6 @@ mod error;
 mod space;
 
 use std::collections::BTreeMap;
-
 use serde::ser::Serialize;
 use serde_json::Value;
 use serde_json::value::from_value;
