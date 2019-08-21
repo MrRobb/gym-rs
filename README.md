@@ -30,7 +30,7 @@ Once everything is installed, just add this crate to your your Rust project.
 # Cargo.toml
 
 [dependencies]
-gym-rs = "*"
+gym = "*"
 ```
 
 Then, to use it just do:
