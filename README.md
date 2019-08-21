@@ -1,8 +1,8 @@
 # gym-rs
 
-[![HitCount](http://hits.dwyl.io/mrrobb/gym-rs.svg)](http://hits.dwyl.io/mrrobb/gym-rs)
+![HitCount](http://hits.dwyl.io/mrrobb/gym-rs.svg)
 [![Crates.io](https://img.shields.io/crates/v/gym)](https://crates.io/crates/gym)
-[![Docs.rs](https://docs.rs/gym/badge.svg)](https://docs.rs/gym-rs/latest/gym)
+[![Docs.rs](https://docs.rs/gym/badge.svg)](https://docs.rs/gym/latest/gym)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/MrRobb/gym-rs/blob/master/LICENSE)
 
 OpenAI gym binding for Rust.
