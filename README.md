@@ -21,7 +21,7 @@ curl "https://raw.githubusercontent.com/MrRobb/gym-rs/master/requirements.txt" >
 pip install -r requirements.txt
 ```
 
-> If you have any problem try to install --> [create an issue](https://github.com/MrRobb/gym-rs/issues/new).
+> If you have any problem trying to install the dependencies --> [create an issue](https://github.com/MrRobb/gym-rs/issues/new).
 
 ### Usage
 
