@@ -36,6 +36,18 @@ pub struct Environment {
 
 impl Environment {
 
+    fn value_to_obs(s: Value) -> GymResult<Observation> {
+        if s["observation"].is_array() {
+            Ok(from_value(s["observation"].to_owned()).unwrap())
+        }
+        else if s["observation"].is_i64() {
+            Ok(vec![from_value(s["observation"].to_owned()).unwrap()])
+        }
+        else {
+            panic!("Should only panic if the API changes")
+        }
+    }
+
     pub fn action_space(&self) -> &Space {
         &self.act_space
     }
@@ -48,9 +60,7 @@ impl Environment {
 
         let path = "/v1/envs/".to_string() + &self.instance_id + "/reset/";
         let observation = self.client.post(path, &Value::Null)?;
-
-        Ok(from_value(observation["observation"].clone())
-            .expect("Should only panic if the API changes"))
+        Environment::value_to_obs(observation)
     }
 
     pub fn step(&self, action: Action, render: bool) -> GymResult<State> {
@@ -72,10 +82,10 @@ impl Environment {
         let state = self.client.post(path, &req)?;
 
         Ok(State {
-            observation: from_value(state["observation"].clone()).unwrap(),
             reward: state["reward"].as_f64().unwrap(),
             done: state["done"].as_bool().unwrap(),
-            info: state["info"].clone()
+            info: state["info"].clone(),
+            observation: Environment::value_to_obs(state).unwrap(),
         })
     }
 
