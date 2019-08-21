@@ -125,7 +125,7 @@ impl GymClient {
     pub fn new(addr: String) -> GymResult<GymClient> {
 
         let child = std::thread::spawn(|| -> std::process::Child {
-            std::process::Command::new("python")
+            std::process::Command::new("python3")
                 .arg("server.py")
                 .spawn()
                 .expect("Could not initiate server")

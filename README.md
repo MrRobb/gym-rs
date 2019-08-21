@@ -17,7 +17,7 @@ Just install the requierements layed out in the [requirements.txt](https://githu
 
 ```sh
 curl "https://raw.githubusercontent.com/MrRobb/gym-rs/master/requirements.txt" > requirements.txt
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 > If you have any problem trying to install the dependencies --> [create an issue](https://github.com/MrRobb/gym-rs/issues/new).
@@ -39,7 +39,6 @@ Then, to use it just do:
 // main.rs
 
 extern crate gym;
-
 /* ... */
 ```
 
@@ -54,7 +53,7 @@ Once you have installed correctly the library, the only thing left is to test if
 ```shell script
 git clone https://github.com/MrRobb/gym-rs.git
 cd gym-rs
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 cargo run --example basic
 ```
 
