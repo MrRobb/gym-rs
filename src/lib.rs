@@ -15,11 +15,14 @@ use serde_json::value::from_value;
 pub use self::error::{GymResult, GymError};
 pub use self::space::Space;
 
+pub type Observation = Vec<f64>;
+pub type Action = Vec<f64>;
+pub type Reward = f64;
 
 #[derive(Debug)]
 pub struct State {
-    pub observation:    Vec<f64>,
-    pub reward:         f64,
+    pub observation:    Observation,
+    pub reward:         Reward,
     pub done:           bool,
     pub info:           Value,
 }
@@ -41,7 +44,8 @@ impl Environment {
         &self.obs_space
     }
 
-    pub fn reset(&self) -> GymResult<Vec<f64>> {
+    pub fn reset(&self) -> GymResult<Observation> {
+
         let path = "/v1/envs/".to_string() + &self.instance_id + "/reset/";
         let observation = self.client.post(path, &Value::Null)?;
 
@@ -49,7 +53,7 @@ impl Environment {
             .expect("Should only panic if the API changes"))
     }
 
-    pub fn step(&self, action: Vec<f64>, render: bool) -> GymResult<State> {
+    pub fn step(&self, action: Action, render: bool) -> GymResult<State> {
         let mut req = BTreeMap::new();
         req.insert("render", Value::Bool(render));
         match self.act_space {
