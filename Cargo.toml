@@ -1,12 +1,12 @@
 [package]
-name = "gym-rs"
+name = "gym"
 version = "0.1.0"
 authors = ["Roberto <rob.ariosa@hotmail.com>"]
 edition = "2018"
 
 description = "Open AI environments bindings for Rust"
 repository = "https://github.com/MrRobb/gym-rs"
-documentation = "https://docs.rs/gym-rs"
+documentation = "https://docs.rs/gym"
 readme = "README.md"
 keywords = ["openai", "gym", "environments", "reinforcement-learning", "bindings"]
 categories = ["api-bindings"]
