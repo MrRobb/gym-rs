@@ -20,8 +20,6 @@ curl "https://raw.githubusercontent.com/MrRobb/gym-rs/master/requirements.txt" >
 pip3 install -r requirements.txt
 ```
 
-> If you have any problem trying to install the dependencies --> [create an issue](https://github.com/MrRobb/gym-rs/issues/new).
-
 ### Usage
 
 Once everything is installed, just add this crate to your your Rust project.
@@ -42,8 +40,6 @@ extern crate gym;
 /* ... */
 ```
 
-If you have any problem with your installation --> [just create a new issue](https://github.com/MrRobb/gym-rs/issues/new)
-
 ### Example
 
 Once you have installed correctly the library, the only thing left is to test if its working ok. To do so, you just have to execute the following commands:
@@ -56,7 +52,5 @@ cd gym-rs
 pip3 install -r requirements.txt
 cargo run --example basic
 ```
-
-> If you have any problem try to install --> [create an issue](https://github.com/MrRobb/gym-rs/issues/new).
 
 > This repository is inspired in [this genius PR](https://github.com/openai/gym-http-api/pull/56) made by @NivenT. It includes changes, but it is based on his contribution.
