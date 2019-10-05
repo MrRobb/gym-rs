@@ -3,7 +3,7 @@ extern crate gym;
 use gym::GymClient;
 
 fn main() {
-	let client = GymClient::new("http://localhost:5000".to_string()).unwrap();
+	let client = GymClient::new_quiet("http://localhost:5000".to_string()).unwrap();
 	println!("Already running environments:\n{:?}\n", client.get_envs().unwrap());
 
 	let env = match client.make("CartPole-v0") {
@@ -11,7 +11,7 @@ fn main() {
 		Err(msg) => panic!("Could not make environment because of error:\n{}", msg)
 	};
 
-	println!("\nObservation space:\n{:?}\n", env.observation_space());
+	println!("Observation space:\n{:?}\n", env.observation_space());
 	println!("Action space:\n{:?}\n", env.action_space());
 
 	let _ = env.monitor_start("/tmp/random-agent-results".to_string(), true, false);

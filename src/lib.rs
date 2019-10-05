@@ -14,6 +14,7 @@ use serde_json::value::from_value;
 
 pub use self::error::{GymResult, GymError};
 pub use self::space::Space;
+use std::process::Stdio;
 
 pub type Observation = Vec<f64>;
 pub type Action = Vec<f64>;
@@ -127,6 +128,27 @@ impl GymClient {
         let child = std::thread::spawn(|| -> std::process::Child {
             std::process::Command::new("python3")
                 .arg("server.py")
+                .spawn()
+                .expect("Could not initiate server")
+        });
+
+        std::thread::sleep(std::time::Duration::from_millis(2000));
+
+        let client = Ok(GymClient {
+            address: addr,
+            handle: reqwest::Client::new(),
+            server: child.join().unwrap()
+        });
+
+        client
+    }
+
+    pub fn new_quiet(addr: String) -> GymResult<GymClient> {
+        let child = std::thread::spawn(|| -> std::process::Child {
+            std::process::Command::new("python3")
+                .arg("server.py")
+                .stderr(Stdio::null())
+                .stdout(Stdio::null())
                 .spawn()
                 .expect("Could not initiate server")
         });
