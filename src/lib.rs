@@ -196,7 +196,6 @@ impl GymClient {
 				.arg(ip_str)
 				.arg("--port")
 				.arg(port_str)
-				.stdout(Stdio::null())
 				.spawn()
 				.expect("Could not initiate server")
 		});
