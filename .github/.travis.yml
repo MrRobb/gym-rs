@@ -1,0 +1,18 @@
+matrix:
+  include:
+    - language: rust
+      rust:
+        - stable
+        - beta
+        - nightly
+      install:
+        - cargo build;
+      script:
+        - cargo build; cargo test --verbose
+    
+    - language: python
+      python: 3.7
+      install:
+        - pip3 install -r requirements.txt
+      script:
+        - echo "TODO -> Python"
