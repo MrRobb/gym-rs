@@ -16,10 +16,10 @@ jobs:
       with:
         rust-version: ${{ matrix.rust }}
     - name: Install
-      run: rustup update && rustup component add clippy
+      run: rustup update && rustup component add clippy && pip install -r requirements.txt
     - name: Build
-      run: cargo build --verbose
+      run: cargo build
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test -- --test-threads 1 --verbose
     - name: Check format
       run: cargo fmt -- --check
