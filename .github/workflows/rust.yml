@@ -16,7 +16,7 @@ jobs:
       with:
         rust-version: ${{ matrix.rust }}
     - name: Install
-      run: rustup update && rustup component add clippy && pip install -r requirements.txt
+      run: rustup update && rustup component add clippy && pip3 install -r requirements.txt
     - name: Build
       run: cargo build
     - name: Run tests
