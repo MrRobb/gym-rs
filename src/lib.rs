@@ -136,7 +136,7 @@ impl<'a> Environment<'a> {
 					"action": action
 				})
 			},
-			Space::TUPLE { ref spaces } => json!({
+			Space::TUPLE { .. } => json!({
 				"render": render,
 				"action": action
 			}),
