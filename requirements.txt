@@ -1,9 +1,5 @@
-Flask==1.1.1
-uuid==1.30
-gym==0.15.3
-numpy==1.17.2
-requests==2.22.0
-atari-py==0.2.6
+gym
+atari_py
 Pillow
 opencv-python
 box2d-py
