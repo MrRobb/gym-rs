@@ -1,6 +1,6 @@
 [package]
 name = "gym"
-version = "1.0.1"
+version = "2.0.0-beta"
 authors = ["Roberto <rob.ariosa@hotmail.com>"]
 edition = "2018"
 
