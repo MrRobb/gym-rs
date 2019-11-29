@@ -211,7 +211,11 @@ impl<'a> Environment<'a> {
 				self.env.call_method(py, "step", (n,), None)
 					.map_err(|_| GymError::InvalidAction)?
 			},
-			Action::BOX(_) => unimplemented!(),
+			Action::BOX(v) => {
+				let vv = v.to_vec();
+				self.env.call_method(py, "step", (vv,), None)
+					.map_err(|_| GymError::InvalidAction)?
+			},
 			Action::TUPLE(_) => unimplemented!(),
 		};
 
@@ -375,5 +379,14 @@ mod tests {
 		let env = client.make("CartPole-v1", None);
 		env.reset().unwrap();
 		let _ = env.action_space().sample().get_box().unwrap();
+	}
+
+	#[test]
+	fn test_box_action() {
+		let client = GymClient::default();
+		let env = client.make("BipedalWalker-v2", None);
+		env.reset().unwrap();
+		let action = env.action_space().sample();
+		env.step(&action).unwrap();
 	}
 }
