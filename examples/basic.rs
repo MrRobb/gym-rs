@@ -16,4 +16,6 @@ fn main() {
 			}
 		}
 	}
+	
+	env.close();
 }
