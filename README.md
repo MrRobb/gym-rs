@@ -52,5 +52,3 @@ cd gym-rs
 pip3 install -r requirements.txt
 cargo run --example basic
 ```
-
-> This repository is inspired in [this genius PR](https://github.com/openai/gym-http-api/pull/56) made by @NivenT. It includes changes, but it is based on his contribution.
