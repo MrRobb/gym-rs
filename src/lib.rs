@@ -88,6 +88,8 @@ impl SpaceTemplate {
 			},
 			SpaceTemplate::BOX { .. } => {
 				let v = pyo
+					.call_method(py, "flatten", NoArgs, None)
+					.unwrap()
 					.extract::<Vec<f64>>(py)
 					.expect("Unable to convert observation to Vec");
 				SpaceData::BOX(v.into())
@@ -127,8 +129,8 @@ impl FromPyObject<'_> for SpaceTemplate {
 				Ok(SpaceTemplate::DISCRETE { n })
 			},
 			"Box" => {
-				let high = obj.getattr(py, "high")?.extract::<Vec<f64>>(py)?;
-				let low = obj.getattr(py, "low")?.extract::<Vec<f64>>(py)?;
+				let high = obj.getattr(py, "high")?.call_method(py, "flatten", NoArgs, None)?.extract::<Vec<f64>>(py)?;
+				let low = obj.getattr(py, "low")?.call_method(py, "flatten", NoArgs, None)?.extract::<Vec<f64>>(py)?;
 				let shape = obj.getattr(py, "shape")?.extract::<Vec<usize>>(py)?;
 				debug_assert_eq!(high.len(), low.len());
 				debug_assert_eq!(low.len(), shape.iter().product());
