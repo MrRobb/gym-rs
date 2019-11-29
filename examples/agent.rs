@@ -32,7 +32,7 @@ fn main() {
 	for ep in 0..100_000 {
 		let mut epochs = 0;
 		let mut done = false;
-		let obs = env.reset();
+		let obs = env.reset().expect("Unable to reset");
 		let mut state: usize = obs.get_discrete().unwrap();
 
 		while !done {
@@ -47,7 +47,7 @@ fn main() {
 				observation,
 				reward,
 				is_done,
-			} = env.step(&Action::DISCRETE(action));
+			} = env.step(&Action::DISCRETE(action)).unwrap();
 			let next_state: usize = observation.get_discrete().unwrap();
 
 			let old_value = qtable[state][action];

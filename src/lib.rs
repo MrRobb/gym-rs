@@ -1,16 +1,30 @@
+#[macro_use]
+extern crate failure;
 extern crate cpython;
 extern crate ndarray;
-extern crate num;
 extern crate rand;
 
 use cpython::*;
 use rand::Rng;
+use failure::Fail;
 
 type DiscreteType = usize;
 type VectorType<T> = ndarray::Array1<T>;
 pub type Action = SpaceData;
 pub type Observation = SpaceData;
 pub type Reward = f64;
+
+#[derive(Debug, Fail)]
+pub enum GymError {		
+	#[fail(display = "Invalid action")]
+	InvalidAction,
+	#[fail(display = "Invalid conversion")]
+	InvalidConversion,
+	#[fail(display = "Wrong type")]
+	WrongType,
+	#[fail(display = "Unable to parse step result")]
+	WrongStepResult
+}
 
 pub struct State {
 	pub observation: SpaceData,
@@ -49,33 +63,35 @@ pub struct Environment<'a> {
 pub struct GymClient {
 	gil: GILGuard,
 	gym: PyModule,
+	version: String,
 }
 
 impl SpaceData {
-	pub fn get_discrete(self) -> Option<DiscreteType> {
+
+	pub fn get_discrete(self) -> Result<DiscreteType, GymError> {
 		match self {
-			SpaceData::DISCRETE(n) => Some(n),
-			_ => None,
+			SpaceData::DISCRETE(n) => Ok(n),
+			_ => Err(GymError::WrongType),
 		}
 	}
 
-	pub fn get_box(self) -> Option<VectorType<f64>> {
+	pub fn get_box(self) -> Result<VectorType<f64>, GymError> {
 		match self {
-			SpaceData::BOX(v) => Some(v),
-			_ => None,
+			SpaceData::BOX(v) => Ok(v),
+			_ => Err(GymError::WrongType),
 		}
 	}
 
-	pub fn get_tuple(self) -> Option<VectorType<SpaceData>> {
+	pub fn get_tuple(self) -> Result<VectorType<SpaceData>, GymError> {
 		match self {
-			SpaceData::TUPLE(s) => Some(s),
-			_ => None,
+			SpaceData::TUPLE(s) => Ok(s),
+			_ => Err(GymError::WrongType),
 		}
 	}
 }
 
 impl SpaceTemplate {
-	fn extract_data(&self, pyo: PyObject) -> SpaceData {
+	fn extract_data(&self, pyo: PyObject) -> Result<SpaceData, GymError> {
 		let gil = Python::acquire_gil();
 		let py = gil.python();
 
@@ -83,20 +99,73 @@ impl SpaceTemplate {
 			SpaceTemplate::DISCRETE { .. } => {
 				let n = pyo
 					.extract::<DiscreteType>(py)
-					.expect("Unable to convert observation to u64");
-				SpaceData::DISCRETE(n)
+					.map_err(|_| GymError::InvalidConversion)?;
+				Ok(SpaceData::DISCRETE(n))
 			},
 			SpaceTemplate::BOX { .. } => {
 				let v = pyo
 					.call_method(py, "flatten", NoArgs, None)
-					.unwrap()
+					.map_err(|_| GymError::InvalidConversion)?
 					.extract::<Vec<f64>>(py)
-					.expect("Unable to convert observation to Vec");
-				SpaceData::BOX(v.into())
+					.map_err(|_| GymError::InvalidConversion)?;
+				Ok(SpaceData::BOX(v.into()))
 			},
 			SpaceTemplate::Tuple { .. } => {
 				unimplemented!();
 			},
+		}
+	}
+
+	fn extract_template(pyo: PyObject) -> SpaceTemplate {
+		let gil = Python::acquire_gil();
+		let py = gil.python();
+		
+		let class = pyo
+			.getattr(py, "__class__")
+			.expect("Unable to extract __class__ (this should never happen)");
+		
+		let name = class
+			.getattr(py, "__name__")
+			.expect("Unable to extract __name__ (this should never happen)")
+			.extract::<String>(py)
+			.expect("Unable to extract __name__ (this should never happen)");
+		
+		match name.as_ref() {
+			"Discrete" => {
+				let n = pyo.getattr(py, "n")
+					.expect("Unable to get attribute 'n'")
+					.extract::<usize>(py)
+					.expect("Unable to convert 'n' to usize");
+				SpaceTemplate::DISCRETE { n }
+			},
+			"Box" => {
+				let high = pyo.getattr(py, "high")
+					.expect("Unable to get attribute 'high'")
+					.call_method(py, "flatten", NoArgs, None)
+					.expect("Unable to call 'flatten'")
+					.extract::<Vec<f64>>(py)
+					.expect("Unable to convert 'high' to Vec<f64>");
+
+				let low = pyo.getattr(py, "low")
+					.expect("Unable to get attribute 'low'")
+					.call_method(py, "flatten", NoArgs, None)
+					.expect("Unable to call 'flatten'")
+					.extract::<Vec<f64>>(py)
+					.expect("Unable to convert 'low' to Vec<f64>");
+				
+				let shape = pyo.getattr(py, "shape")
+					.expect("Unable to get attribute 'shape'")
+					.extract::<Vec<usize>>(py)
+					.expect("Unable to convert 'shape' to Vec<f64>");
+				
+				debug_assert_eq!(high.len(), low.len());
+				debug_assert_eq!(low.len(), shape.iter().product());
+				high.iter().zip(low.iter()).for_each(|(h, l)| debug_assert!(h > l));
+				
+				SpaceTemplate::BOX { high, low, shape }
+			},
+			"Tuple" => unimplemented!(),
+			_ => unreachable!(),
 		}
 	}
 
@@ -119,35 +188,12 @@ impl SpaceTemplate {
 	}
 }
 
-impl FromPyObject<'_> for SpaceTemplate {
-	fn extract(py: Python, obj: &PyObject) -> Result<Self, PyErr> {
-		let class = obj.getattr(py, "__class__")?;
-		let name = class.getattr(py, "__name__")?.extract::<String>(py)?;
-		match name.as_ref() {
-			"Discrete" => {
-				let n = obj.getattr(py, "n")?.extract::<usize>(py)?;
-				Ok(SpaceTemplate::DISCRETE { n })
-			},
-			"Box" => {
-				let high = obj.getattr(py, "high")?.call_method(py, "flatten", NoArgs, None)?.extract::<Vec<f64>>(py)?;
-				let low = obj.getattr(py, "low")?.call_method(py, "flatten", NoArgs, None)?.extract::<Vec<f64>>(py)?;
-				let shape = obj.getattr(py, "shape")?.extract::<Vec<usize>>(py)?;
-				debug_assert_eq!(high.len(), low.len());
-				debug_assert_eq!(low.len(), shape.iter().product());
-				high.iter().zip(low.iter()).for_each(|(h, l)| assert!(h > l));
-				Ok(SpaceTemplate::BOX { high, low, shape })
-			},
-			"Tuple" => unimplemented!(),
-			_ => unreachable!(),
-		}
-	}
-}
-
 impl<'a> Environment<'a> {
-	pub fn reset(&self) -> SpaceData {
+	pub fn reset(&self) -> Result<SpaceData, GymError> {
 		let py = self.gil.python();
-		let result = self.env.call_method(py, "reset", NoArgs, None).expect("Error: reset()");
-		// println!("Reset: {:?}", result);
+		let result = self.env
+			.call_method(py, "reset", NoArgs, None)
+			.expect("Unable to call 'reset'");
 		self.observation_space.extract_data(result)
 	}
 
@@ -155,37 +201,43 @@ impl<'a> Environment<'a> {
 		let py = self.gil.python();
 		self.env
 			.call_method(py, "render", NoArgs, None)
-			.expect("Error: render()");
+			.expect("Unable to call 'render'");
 	}
 
-	pub fn step(&self, action: &Action) -> State {
+	pub fn step(&self, action: &Action) -> Result<State, GymError> {
 		let py = self.gil.python();
 		let result = match action {
-			Action::DISCRETE(n) => self.env.call_method(py, "step", (n,), None).expect("Error: step()"),
+			Action::DISCRETE(n) => {
+				self.env.call_method(py, "step", (n,), None)
+					.map_err(|_| GymError::InvalidAction)?
+			},
 			Action::BOX(_) => unimplemented!(),
 			Action::TUPLE(_) => unimplemented!(),
 		};
-		State {
+
+		let s = State {
 			observation: self
 				.observation_space
-				.extract_data(result.get_item(py, 0).expect("Error: extract step result")),
+				.extract_data(result.get_item(py, 0).map_err(|_| GymError::WrongStepResult)?)?,
 			reward: result
 				.get_item(py, 1)
-				.expect("Error: extract step result")
+				.map_err(|_| GymError::WrongStepResult)?
 				.extract(py)
-				.unwrap(),
+				.map_err(|_| GymError::WrongStepResult)?,
 			is_done: result
 				.get_item(py, 2)
-				.expect("Error: extract step result")
+				.map_err(|_| GymError::WrongStepResult)?
 				.extract(py)
-				.unwrap(),
-		}
+				.map_err(|_| GymError::WrongStepResult)?,
+		};
+
+		Ok(s)
 	}
 
 	pub fn close(&self) {
 		let py = self.gil.python();
-		let result = self.env.call_method(py, "close", NoArgs, None).expect("Error: close()");
-		println!("Close: {:?}", result);
+		let _ = self.env.call_method(py, "close", NoArgs, None)
+			.expect("Unable to call 'close'");
 	}
 
 	/// Returns the number of allowed actions for this environment.
@@ -214,31 +266,40 @@ impl Default for GymClient {
 
 		// Import gym
 		let gym = py.import("gym").expect("Error: import gym");
-		let version = gym.get(py, "__version__").expect("Error: gym.__version__");
-		println!("gym version: {:?}", version);
+		let version = gym
+			.get(py, "__version__")
+			.expect("Unable to call gym.__version__")
+			.extract(py)
+			.expect("Unable to call gym.__version__");
 
-		GymClient { gil, gym }
+		GymClient { gil, gym, version }
 	}
 }
 
 impl GymClient {
 	pub fn make(&self, env_id: &str, _seed: Option<u64>) -> Environment {
 		let py = self.gil.python();
-		let env = self.gym.call(py, "make", (env_id,), None).expect("Error: make()");
+		let env = self.gym.call(py, "make", (env_id,), None)
+			.expect("Unable to call 'make'");
+		
 		Environment {
 			gil: &self.gil,
-			observation_space: env
-				.getattr(py, "observation_space")
-				.unwrap()
-				.extract::<SpaceTemplate>(py)
-				.unwrap(),
-			action_space: env
-				.getattr(py, "action_space")
-				.unwrap()
-				.extract::<SpaceTemplate>(py)
-				.unwrap(),
+			observation_space: SpaceTemplate::extract_template(
+				env
+					.getattr(py, "observation_space")
+					.expect("Unable to get attribute 'observation_space'")
+			),
+			action_space: SpaceTemplate::extract_template(
+				env
+					.getattr(py, "action_space")
+					.expect("Unable to get attribute 'action_space'")
+			),
 			env,
 		}
+	}
+
+	pub fn version(&self) -> &str {
+		self.version.as_str()
 	}
 }
 
@@ -263,27 +324,56 @@ mod tests {
 	];
 
 	#[test]
-	fn test_1_new() {
+	fn test_gym_client() {
 		let _client = GymClient::default();
 	}
 
 	#[test]
-	fn test_2_make() {
+	fn test_make() {
 		let client = GymClient::default();
-		client.make("CartPole-v0", None);
+		client.make("CartPole-v1", None);
 	}
 
 	#[test]
-	fn test_4_reset() {
+	fn test_reset() {
 		let client = GymClient::default();
-		let env = client.make("CartPole-v0", None);
-		env.reset();
+		let env = client.make("CartPole-v1", None);
+		env.reset().unwrap();
 	}
 
 	#[test]
-	fn test_5_step() {
+	fn test_box_observation_3d() {
 		let client = GymClient::default();
-		let env = client.make("CartPole-v0", None);
-		env.reset();
+		let env = client.make("VideoPinball-v0", None);
+		env.reset().unwrap();
+		env.step(&env.action_space().sample()).unwrap();
+	}
+
+	#[test]
+	fn test_step() {
+		let client = GymClient::default();
+		let env = client.make("CartPole-v1", None);
+		env.reset().unwrap();
+		let action = env.action_space().sample();
+		env.step(&action).unwrap();
+	}
+
+	#[test]
+	#[should_panic]
+	fn test_invalid_action() {
+		let client = GymClient::default();
+		let env = client.make("CartPole-v1", None);
+		env.reset().unwrap();
+		let action = Action::DISCRETE(500); // invalid action
+		env.step(&action).unwrap();
+	}
+
+	#[test]
+	#[should_panic]
+	fn test_wrong_type() {
+		let client = GymClient::default();
+		let env = client.make("CartPole-v1", None);
+		env.reset().unwrap();
+		let _ = env.action_space().sample().get_box().unwrap();
 	}
 }
