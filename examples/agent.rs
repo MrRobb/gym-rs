@@ -1,52 +1,68 @@
 extern crate gym;
 extern crate rand;
 
-use gym::GymClient;
+use gym::{Action, GymClient, State};
 use rand::Rng;
 
 // Hyperparameters
 const ALPHA: f64 = 0.1;
 const GAMMA: f64 = 0.6;
 const EPSILON: f64 = 0.1;
+const INFINITY: f64 = -1.0 / 0.0;
+
+fn argmax(v: &[f64]) -> usize {
+	let mut i_max = 0;
+	let mut f_max = -1.0 / 0.0;
+	for (i, &f) in v.iter().enumerate() {
+		if f > f_max {
+			i_max = i;
+			f_max = f;
+		}
+	}
+	i_max
+}
 
 fn main() {
+	let mut rng = rand::thread_rng();
+	let client = GymClient::default();
+	let env = client.make("Taxi-v3", None);
+	let mut qtable = [[0.0; 6]; 500];
 
-    let mut rng = rand::thread_rng();
-	let client = GymClient::new("127.0.0.1".parse().unwrap(), 8000).unwrap();
-	let env = client.make("Taxi-v3".into(), None).expect("Could not make environment");
-    let mut qtable = [[0.0; 6]; 500];
-
-    // Exploration
+	// Exploration
 	for ep in 0..100_000 {
-
-        let mut done = false;
-
-		let obs = env.reset().unwrap();
-        let mut i_state = obs[0] as usize;
+		let mut epochs = 0;
+		let mut done = false;
+		let obs = env.reset();
+		let mut state: usize = obs.get_discrete().unwrap();
 
 		while !done {
+			let action = if rng.gen_bool(EPSILON) {
+				env.action_space().sample().get_discrete().unwrap()
+			}
+			else {
+				argmax(&qtable[state])
+			};
 
-            let action = if rng.gen_bool(EPSILON) {
-                env.action_space().sample()
-            }
-            else {
-                vec!(qtable[i_state].iter().cloned().fold(-1./0. /* -inf */, f64::max))
-            };
-            let i_action: usize = action[0] as usize;
+			let State {
+				observation,
+				reward,
+				is_done,
+			} = env.step(&Action::DISCRETE(action));
+			let next_state: usize = observation.get_discrete().unwrap();
 
-            let old_value = qtable[i_state][i_action];
-			let state = env.step(action, false).unwrap();
-            let next_max = qtable[i_state].iter().cloned().fold(-1./0. /* -inf */, f64::max);
-            let next_value = (1.0 - ALPHA) * old_value + ALPHA * (state.reward + GAMMA * next_max);
-            qtable[i_state][i_action] = next_value;
+			let old_value = qtable[state][action];
+			let next_max = qtable[next_state].iter().cloned().fold(INFINITY, f64::max);
 
-            i_state = state.observation[0] as usize;
-			done = state.done;
+			let next_value = (1.0 - ALPHA) * old_value + ALPHA * (reward + GAMMA * next_max);
+			qtable[state][action] = next_value;
+
+			state = next_state;
+			epochs += 1;
+			done = is_done;
 		}
 
-        //let zeros: usize = qtable.iter().map(|&x| x.iter().filter(|&&x| x == 0).count()).sum();
-        if ep % 100 == 0 {
-            println!("Finished episode {}", ep);
-        }
-    }
+		if ep % 100 == 0 {
+			println!("Finished episode {} in {}", ep, epochs);
+		}
+	}
 }

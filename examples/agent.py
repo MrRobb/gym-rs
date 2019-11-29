@@ -2,23 +2,20 @@
 
 import random
 import numpy as np
-from IPython.display import clear_output
 import gym
 
-env = gym.make("Taxi-v3").env
+print(gym.__version__)
+
+env = gym.make("Taxi-v3")
 
 # Hyperparameters
 alpha = 0.1
 gamma = 0.6
 epsilon = 0.1
 
-# For plotting metrics
-all_epochs = []
-all_penalties = []
-
 q_table = np.zeros([env.observation_space.n, env.action_space.n])
 
-for i in range(1, 100001):
+for i in range(0, 100_000):
     state = env.reset()
 
     epochs, penalties, reward, = 0, 0, 0
@@ -28,9 +25,11 @@ for i in range(1, 100001):
         if random.uniform(0, 1) < epsilon:
             action = env.action_space.sample() # Explore action space
         else:
-            action = np.argmax(q_table[state]) # Exploit learned values
+            action = np.argmax(q_table[state])
 
-        next_state, reward, done, info = env.step(action) 
+        next_state, reward, done, info = env.step(action)
+        print(dir(next_state))
+        exit()
         
         old_value = q_table[state, action]
         next_max = np.max(q_table[next_state])
@@ -45,6 +44,6 @@ for i in range(1, 100001):
         epochs += 1
         
     if i % 100 == 0:
-        print(f"Episode: {i}")
+        print(f"Episode: {i} in {epochs}")
 
 print("Training finished.\n")
