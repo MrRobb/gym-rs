@@ -32,6 +32,7 @@ pub struct State {
 	pub is_done: bool,
 }
 
+#[derive(Debug)]
 pub enum SpaceTemplate {
 	DISCRETE {
 		n: DiscreteType,
@@ -41,12 +42,12 @@ pub enum SpaceTemplate {
 		low: Vec<f64>,
 		shape: Vec<usize>,
 	},
-	Tuple {
-		shape: Vec<usize>,
+	TUPLE {
+		spaces: Vec<SpaceTemplate>,
 	},
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum SpaceData {
 	DISCRETE(DiscreteType),
 	BOX(VectorType<f64>),
@@ -87,6 +88,23 @@ impl SpaceData {
 			_ => Err(GymError::WrongType),
 		}
 	}
+
+	pub fn into_pyo(self) -> Result<PyObject, GymError> {
+		let gil = Python::acquire_gil();
+		let py = gil.python();
+		Ok(match self {
+			SpaceData::DISCRETE(n) => n.into_py_object(py).into_object(),
+			SpaceData::BOX(v) => v.to_vec().into_py_object(py).into_object(),
+			SpaceData::TUPLE(spaces) => {
+				let vpyo = spaces
+					.to_vec()
+					.into_iter()
+					.map(|s| s.into_pyo().expect("Unable to parse tuple"))
+					.collect::<Vec<_>>();
+				vpyo.into_py_object(py).into_object()
+			},
+		})
+	}
 }
 
 impl SpaceTemplate {
@@ -109,8 +127,17 @@ impl SpaceTemplate {
 					.map_err(|_| GymError::InvalidConversion)?;
 				Ok(SpaceData::BOX(v.into()))
 			},
-			SpaceTemplate::Tuple { .. } => {
-				unimplemented!();
+			SpaceTemplate::TUPLE { .. } => {
+				let mut tuple = vec![];
+				let mut i = 0;
+				let mut item = pyo.get_item(py, i);
+				while item.is_ok() {
+					let pyo_item = self.extract_data(item.unwrap())?;
+					tuple.push(pyo_item);
+					i += 1;
+					item = pyo.get_item(py, i);
+				}
+				Ok(SpaceData::TUPLE(tuple.into()))
 			},
 		}
 	}
@@ -167,7 +194,21 @@ impl SpaceTemplate {
 
 				SpaceTemplate::BOX { high, low, shape }
 			},
-			"Tuple" => unimplemented!(),
+			"Tuple" => {
+				let mut i = 0;
+				let mut tuple = vec![];
+				let mut item = pyo.get_item(py, i);
+
+				while item.is_ok() {
+					let pyo_item = item.unwrap();
+					let space = SpaceTemplate::extract_template(pyo_item);
+					tuple.push(space);
+					i += 1;
+					item = pyo.get_item(py, i);
+				}
+
+				SpaceTemplate::TUPLE { spaces: tuple }
+			},
 			_ => unreachable!(),
 		}
 	}
@@ -186,7 +227,14 @@ impl SpaceTemplate {
 				}
 				SpaceData::BOX(v.into())
 			},
-			SpaceTemplate::Tuple { .. } => unimplemented!(),
+			SpaceTemplate::TUPLE { spaces } => {
+				let mut tuple = vec![];
+				for space in spaces {
+					let sample = space.sample();
+					tuple.push(sample);
+				}
+				SpaceData::TUPLE(tuple.into())
+			},
 		}
 	}
 }
@@ -221,7 +269,17 @@ impl<'a> Environment<'a> {
 					.call_method(py, "step", (vv,), None)
 					.map_err(|_| GymError::InvalidAction)?
 			},
-			Action::TUPLE(_) => unimplemented!(),
+			Action::TUPLE(spaces) => {
+				let vpyo = spaces
+					.to_vec()
+					.into_iter()
+					.map(|s| s.into_pyo().unwrap())
+					.collect::<Vec<_>>();
+				let tpyo = PyTuple::new(py, &vpyo);
+				self.env
+					.call_method(py, "step", (tpyo,), None)
+					.map_err(|_| GymError::InvalidAction)?
+			},
 		};
 
 		let s = State {
@@ -392,6 +450,30 @@ mod tests {
 	fn test_box_action() {
 		let client = GymClient::default();
 		let env = client.make("BipedalWalker-v2", None);
+		env.reset().unwrap();
+		let action = env.action_space().sample();
+		env.step(&action).unwrap();
+	}
+
+	#[test]
+	fn test_tuple_template() {
+		let client = GymClient::default();
+		let _ = client.make("Blackjack-v0", None);
+	}
+
+	#[test]
+	fn test_tuple_obs() {
+		let client = GymClient::default();
+		let env = client.make("Blackjack-v0", None);
+		env.reset().unwrap();
+		let action = env.action_space().sample();
+		env.step(&action).unwrap();
+	}
+
+	#[test]
+	fn test_tuple_action() {
+		let client = GymClient::default();
+		let env = client.make("RepeatCopy-v0", None);
 		env.reset().unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
