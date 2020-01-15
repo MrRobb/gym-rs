@@ -1,8 +1,15 @@
 matrix:
   include:
     - language: rust
+      python:
+        - 3.7
       rust:
         - stable
+      before_install:
+        - which python3
+        - which python
+        - which pip
+        - which pip3
       install:
         - pip3 install -r requirements.txt
       script:
