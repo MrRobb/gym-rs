@@ -1,6 +1,6 @@
-gym
-atari_py
-Pillow
-opencv-python
-box2d-py
-imageio
+gym==0.15.4
+atari_py==0.2.6
+Pillow==7.0.0
+opencv-python==4.1.2.30
+box2d-py==2.3.8
+imageio==2.6.1
