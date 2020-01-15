@@ -328,10 +328,13 @@ impl Default for GymClient {
 
 		// Set argv[0] -> otherwise render() fails
 		let sys = py.import("sys").expect("Error: import sys");
-		sys.get(py, "argv")
-			.expect("Error: sys.argv")
-			.call_method(py, "append", ("",), None)
-			.expect("Error: sys.argv.append('')");
+
+		match sys.get(py, "argv") {
+			Result::Ok(argv) => {
+				argv.call_method(py, "append", ("",), None).expect("Error: sys.argv.append('')");
+			},
+			Result::Err(_) => {},
+		};
 
 		// Import gym
 		let gym = py.import("gym").expect("Error: import gym");
