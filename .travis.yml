@@ -14,9 +14,8 @@ matrix:
       rust:
         - stable
       install:
-        - pip install --upgrade pip
-        - python3 -m pip install --upgrade pip
-        - python3 -m pip install -r requirements.txt
+        - sudo python3 -m pip install --upgrade pip
+        - sudo python3 -m pip install -r requirements.txt
       script:
         - cargo build --verbose
         - cargo test --verbose
