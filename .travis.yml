@@ -1,8 +1,12 @@
 matrix:
   include:
     - language: rust
-      python:
-        - 3.7
+    
+      addons:
+        apt:
+          packages:
+            - "python3"
+            - "python3-pip"
       rust:
         - stable
       install:
