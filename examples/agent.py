@@ -28,8 +28,6 @@ for i in range(0, 100_000):
             action = np.argmax(q_table[state])
 
         next_state, reward, done, info = env.step(action)
-        print(dir(next_state))
-        exit()
         
         old_value = q_table[state, action]
         next_max = np.max(q_table[next_state])
