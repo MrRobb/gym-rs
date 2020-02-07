@@ -413,6 +413,18 @@ mod tests {
 	}
 
 	#[test]
+	fn test_seed() {
+		let client = GymClient::default();
+		let env = client.make("FrozenLake-v0");
+		env.seed(1002);
+		let obs = env.reset().unwrap();
+		assert_eq!(0, obs.get_discrete().unwrap());
+		let action = SpaceData::DISCRETE(1);
+		let state = env.step(&action).unwrap();
+		assert_eq!(4, state.observation.get_discrete().unwrap());
+	}
+
+	#[test]
 	fn test_reset() {
 		let client = GymClient::default();
 		let env = client.make("CartPole-v1");
