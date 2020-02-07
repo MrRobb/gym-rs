@@ -25,7 +25,7 @@ fn argmax(v: &[f64]) -> usize {
 fn main() {
 	let mut rng = rand::thread_rng();
 	let client = GymClient::default();
-	let env = client.make("Taxi-v3", None);
+	let env = client.make("Taxi-v3");
 	let mut qtable = [[0.0; 6]; 500];
 
 	// Exploration

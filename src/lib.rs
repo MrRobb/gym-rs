@@ -240,6 +240,12 @@ impl SpaceTemplate {
 }
 
 impl<'a> Environment<'a> {
+
+	pub fn seed(&self, seed: u64) {
+		let py = self.gil.python();
+		self.env.call_method(py, "seed", (seed,), None).expect("Unable to call 'seed'");
+	}
+
 	pub fn reset(&self) -> Result<SpaceData, GymError> {
 		let py = self.gil.python();
 		let result = self
@@ -349,7 +355,7 @@ impl Default for GymClient {
 }
 
 impl GymClient {
-	pub fn make(&self, env_id: &str, _seed: Option<u64>) -> Environment {
+	pub fn make(&self, env_id: &str) -> Environment {
 		let py = self.gil.python();
 		let env = self
 			.gym
@@ -403,20 +409,20 @@ mod tests {
 	#[test]
 	fn test_make() {
 		let client = GymClient::default();
-		client.make("CartPole-v1", None);
+		client.make("CartPole-v1");
 	}
 
 	#[test]
 	fn test_reset() {
 		let client = GymClient::default();
-		let env = client.make("CartPole-v1", None);
+		let env = client.make("CartPole-v1");
 		env.reset().unwrap();
 	}
 
 	#[test]
 	fn test_box_observation_3d() {
 		let client = GymClient::default();
-		let env = client.make("VideoPinball-v0", None);
+		let env = client.make("VideoPinball-v0");
 		env.reset().unwrap();
 		env.step(&env.action_space().sample()).unwrap();
 	}
@@ -424,7 +430,7 @@ mod tests {
 	#[test]
 	fn test_step() {
 		let client = GymClient::default();
-		let env = client.make("CartPole-v1", None);
+		let env = client.make("CartPole-v1");
 		env.reset().unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
@@ -434,7 +440,7 @@ mod tests {
 	#[should_panic]
 	fn test_invalid_action() {
 		let client = GymClient::default();
-		let env = client.make("CartPole-v1", None);
+		let env = client.make("CartPole-v1");
 		env.reset().unwrap();
 		let action = Action::DISCRETE(500); // invalid action
 		env.step(&action).unwrap();
@@ -444,7 +450,7 @@ mod tests {
 	#[should_panic]
 	fn test_wrong_type() {
 		let client = GymClient::default();
-		let env = client.make("CartPole-v1", None);
+		let env = client.make("CartPole-v1");
 		env.reset().unwrap();
 		let _ = env.action_space().sample().get_box().unwrap();
 	}
@@ -452,7 +458,7 @@ mod tests {
 	#[test]
 	fn test_box_action() {
 		let client = GymClient::default();
-		let env = client.make("BipedalWalker-v2", None);
+		let env = client.make("BipedalWalker-v2");
 		env.reset().unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
@@ -461,13 +467,13 @@ mod tests {
 	#[test]
 	fn test_tuple_template() {
 		let client = GymClient::default();
-		let _ = client.make("Blackjack-v0", None);
+		let _ = client.make("Blackjack-v0");
 	}
 
 	#[test]
 	fn test_tuple_obs() {
 		let client = GymClient::default();
-		let env = client.make("Blackjack-v0", None);
+		let env = client.make("Blackjack-v0");
 		env.reset().unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
@@ -476,7 +482,7 @@ mod tests {
 	#[test]
 	fn test_tuple_action() {
 		let client = GymClient::default();
-		let env = client.make("RepeatCopy-v0", None);
+		let env = client.make("RepeatCopy-v0");
 		env.reset().unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
