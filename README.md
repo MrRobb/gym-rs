@@ -53,3 +53,12 @@ cd gym-rs
 pip3 install -r requirements.txt
 cargo run --example basic
 ```
+
+## Donation (BTC)
+
+<p align="center">
+  <a href="https://i.imgur.com/61OZ7lE.jpg">
+    <img src="https://i.imgur.com/61OZ7lE.jpg" width=35%>
+	</a>
+</p>
+<p align="center">3KRM66geiaXWzqs5hRb35dGiQEQAa6JTYU</p>
