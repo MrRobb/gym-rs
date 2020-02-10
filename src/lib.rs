@@ -470,7 +470,7 @@ mod tests {
 	#[test]
 	fn test_box_action() {
 		let client = GymClient::default();
-		let env = client.make("BipedalWalker-v2");
+		let env = client.make("BipedalWalker-v3");
 		env.reset().unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
