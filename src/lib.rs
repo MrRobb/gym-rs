@@ -499,4 +499,10 @@ mod tests {
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
 	}
+
+	#[test]
+	fn test_gym_version() {
+		let client = GymClient::default();
+		assert!(!client.version().is_empty())
+	}
 }
