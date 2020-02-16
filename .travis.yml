@@ -1,21 +1,19 @@
-matrix:
-  include:
-    - language: rust
-      addons:
-        apt:
-          update: true
-          packages:
-            - "python3"
-            - "python3-pip"
-            - "python3-setuptools"
-            - "python3-wheel"
-      python:
-        - 3.7
-      rust:
-        - stable
-      install:
-        - sudo python3 -m pip install --upgrade pip
-        - sudo python3 -m pip install -r requirements.txt
-      script:
-        - cargo build
-        - cargo test
+language: rust
+addons:
+  apt:
+    update: true
+    packages:
+      - "python3"
+      - "python3-pip"
+      - "python3-setuptools"
+      - "python3-wheel"
+python:
+  - 3.7
+rust:
+  - stable
+install:
+  - sudo python3 -m pip install --upgrade pip
+  - sudo python3 -m pip install -r requirements.txt
+script:
+  - cargo build
+  - cargo test
