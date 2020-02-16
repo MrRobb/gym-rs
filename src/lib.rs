@@ -492,4 +492,14 @@ mod tests {
 		let client = GymClient::default();
 		assert!(!client.version().is_empty())
 	}
+
+	#[test]
+	fn test_render() {
+		let client = GymClient::default();
+		let env = client.make("FrozenLake-v0");
+		env.reset().unwrap();
+		let action = env.action_space().sample();
+		env.step(&action).unwrap();
+		env.render();
+	}
 }
