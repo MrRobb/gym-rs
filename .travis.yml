@@ -1,4 +1,5 @@
 language: rust
+
 addons:
   apt:
     update: true
@@ -7,13 +8,32 @@ addons:
       - "python3-pip"
       - "python3-setuptools"
       - "python3-wheel"
+      - "libssl-dev"
+
 python:
   - 3.7
 rust:
   - stable
+
+cache: cargo
+
+before_cache: |
+  if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+    cargo install cargo-tarpaulin
+  fi
+
 install:
   - sudo python3 -m pip install --upgrade pip
   - sudo python3 -m pip install -r requirements.txt
+  
 script:
+  - cargo clean
   - cargo build
   - cargo test
+
+after_success: |
+  if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+    # Create and upload a report for codecov.io
+    cargo tarpaulin --out Xml
+    bash <(curl -s https://codecov.io/bash)
+  fi
