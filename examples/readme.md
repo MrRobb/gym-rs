@@ -2,7 +2,7 @@
 
 | #      | Topic               | Example                               | Code                                                | Finished |
 |--------|---------------------|---------------------------------------|-----------------------------------------------------|----------|
-| **1.** | Test                | [Basic](#basic)                       | [basic.rs](basic.rs)                       | ✗        |
+| **1.** | Test                | [Basic](#basic)                       | [basic.rs](basic.rs)                       | ≈        |
 | **2.** | Dynamic Programming | [Value iteration](#value-iteration)   | [value_iteration.rs](value_iteration.rs)   | ✗        |
 | **3.** |                     | [Policy iteration](#policy-iteration) | [policy_iteration.rs](policy_iteration.rs) | ✗        |
 | **4.** | Tabular RL          | [Q-Learning](#q-learning)             | [qlearning.rs](qlearning.rs)               | ✗        |
@@ -20,6 +20,8 @@
 ### Policy Iteration
 
 ## Tabular RL
+
+### Q-Learning
 
 ### Monte Carlo with ε-soft policy
 
