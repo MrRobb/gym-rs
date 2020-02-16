@@ -240,10 +240,11 @@ impl SpaceTemplate {
 }
 
 impl<'a> Environment<'a> {
-
 	pub fn seed(&self, seed: u64) {
 		let py = self.gil.python();
-		self.env.call_method(py, "seed", (seed,), None).expect("Unable to call 'seed'");
+		self.env
+			.call_method(py, "seed", (seed,), None)
+			.expect("Unable to call 'seed'");
 	}
 
 	pub fn reset(&self) -> Result<SpaceData, GymError> {
@@ -337,7 +338,8 @@ impl Default for GymClient {
 
 		match sys.get(py, "argv") {
 			Result::Ok(argv) => {
-				argv.call_method(py, "append", ("",), None).expect("Error: sys.argv.append('')");
+				argv.call_method(py, "append", ("",), None)
+					.expect("Error: sys.argv.append('')");
 			},
 			Result::Err(_) => {},
 		};
