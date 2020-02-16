@@ -388,21 +388,6 @@ mod tests {
 
 	use super::*;
 
-	const _ENVS: &[&str] = &[
-		"KellyCoinflipGeneralized-v0",
-		"KellyCoinflip-v0",
-		"Blackjack-v0",
-		"LunarLanderContinuous-v2",
-		"Copy-v0",
-		"Bowling-ram-v0",
-		"VideoPinball-v0",
-		"Reverse-v0",
-		"ReversedAddition-v0",
-		"ReversedAddition3-v0",
-		"RepeatCopy-v0",
-		"DuplicatedInput-v0",
-	];
-
 	#[test]
 	fn test_gym_client() {
 		let _client = GymClient::default();
