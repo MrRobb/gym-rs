@@ -502,4 +502,11 @@ mod tests {
 		env.step(&action).unwrap();
 		env.render();
 	}
+
+	#[test]
+	fn test_close() {
+		let client = GymClient::default();
+		let env = client.make("FrozenLake-v0");
+		env.close();
+	}
 }
