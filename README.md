@@ -48,11 +48,25 @@ Once you have installed correctly the library, the only thing left is to test if
 
 > If you don't have Rust installed go [here](https://www.rust-lang.org/tools/install)
 
-```shell script
+```sh script
 git clone https://github.com/MrRobb/gym-rs.git
 cd gym-rs
 pip3 install -r requirements.txt
 cargo run --example basic
+```
+
+### Troubleshooting
+
+In Ubuntu 20.04, it is possible that you need to install `swig`. To do that, execute:
+
+```sh
+sudo apt-get install swig
+```
+
+The example can fail with virtualenv. It's more of a general problem of the cpython crate rather than this one, you can resolve it by setting the PYTHONHOME env var to the module path of the venv, e.g.:
+
+```sh
+PYTHONPATH=~/venv-py37/lib/python3.7/site-packages cargo run --example basic
 ```
 
 ## Donation (BTC)
