@@ -17,6 +17,6 @@ maintenance = { status = "actively-developed" }
 
 [dependencies]
 rand = "0.7.3"
-cpython = "0.5.0"
+cpython = "0.6.0"
 ndarray = "0.13.0"
 failure = "0.1.6"
