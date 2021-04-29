@@ -1,0 +1,31 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "04:00"
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  ignore:
+  - dependency-name: pillow
+    versions:
+    - 8.1.0
+    - 8.1.2
+- package-ecosystem: cargo
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "04:00"
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  ignore:
+  - dependency-name: ndarray
+    versions:
+    - 0.14.0
+    - 0.15.0
+  - dependency-name: rand
+    versions:
+    - 0.8.2
