@@ -1,5 +1,5 @@
 gym==0.17.2
-atari_py==0.2.6
+atari_py==0.2.9
 Pillow==7.2.0
 opencv-python==4.3.0.36
 box2d-py==2.3.8
