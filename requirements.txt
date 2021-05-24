@@ -1,4 +1,4 @@
-gym==0.17.2
+gym==0.18.3
 atari_py==0.2.6
 Pillow==7.2.0
 opencv-python==4.3.0.36
