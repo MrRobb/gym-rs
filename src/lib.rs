@@ -223,13 +223,13 @@ impl SpaceTemplate {
 	pub fn sample(&self) -> SpaceData {
 		let mut rng = rand::thread_rng();
 		match self {
-			SpaceTemplate::DISCRETE { n } => SpaceData::DISCRETE(rng.gen_range(0, n)),
+			SpaceTemplate::DISCRETE { n } => SpaceData::DISCRETE(rng.gen_range(0..*n)),
 			SpaceTemplate::BOX { high, low, shape } => {
 				let dimensions = shape.len();
 				let mut v = vec![];
 				for d in 0..dimensions {
 					for _ in 0..shape[d] {
-						v.push(rng.gen_range(low[d], high[d]));
+						v.push(rng.gen_range(low[d]..high[d]));
 					}
 				}
 				SpaceData::BOX(v.into())
