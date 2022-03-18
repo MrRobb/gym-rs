@@ -404,7 +404,7 @@ mod tests {
 	#[test]
 	fn test_seed() {
 		let client = GymClient::default();
-		let env = client.make("FrozenLake-v0");
+		let env = client.make("FrozenLake-v1");
 		env.seed(1002);
 		let obs = env.reset().unwrap();
 		assert_eq!(0, obs.get_discrete().unwrap());
@@ -423,7 +423,7 @@ mod tests {
 	#[test]
 	fn test_box_observation_3d() {
 		let client = GymClient::default();
-		let env = client.make("VideoPinball-v0");
+		let env = client.make("VideoPinball-v4");
 		env.reset().unwrap();
 		env.step(&env.action_space().sample()).unwrap();
 	}
@@ -468,13 +468,13 @@ mod tests {
 	#[test]
 	fn test_tuple_template() {
 		let client = GymClient::default();
-		let _ = client.make("Blackjack-v0");
+		let _res = client.make("Blackjack-v1");
 	}
 
 	#[test]
 	fn test_tuple_obs() {
 		let client = GymClient::default();
-		let env = client.make("Blackjack-v0");
+		let env = client.make("Blackjack-v1");
 		env.reset().unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
@@ -498,7 +498,7 @@ mod tests {
 	#[test]
 	fn test_render() {
 		let client = GymClient::default();
-		let env = client.make("FrozenLake-v0");
+		let env = client.make("FrozenLake-v1");
 		env.reset().unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
@@ -508,7 +508,7 @@ mod tests {
 	#[test]
 	fn test_close() {
 		let client = GymClient::default();
-		let env = client.make("FrozenLake-v0");
+		let env = client.make("FrozenLake-v1");
 		env.close();
 	}
 }
