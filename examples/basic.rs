@@ -1,7 +1,7 @@
 extern crate gym;
 
 fn main() {
-	let gym = gym::GymClient::default();
+	let gym = gym::client::GymClient::default();
 	let env = gym.make("CartPole-v1");
 
 	for _ in 0..10 {

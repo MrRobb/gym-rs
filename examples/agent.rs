@@ -1,7 +1,8 @@
 extern crate gym;
 extern crate rand;
 
-use gym::{Action, GymClient, State};
+use gym::client::GymClient;
+use gym::{Action, State};
 use rand::Rng;
 
 // Hyperparameters
@@ -47,7 +48,7 @@ fn main() {
 				observation,
 				reward,
 				is_done,
-			} = env.step(&Action::DISCRETE(action)).unwrap();
+			} = env.step(&Action::Discrete(action)).unwrap();
 			let next_state: usize = observation.get_discrete().unwrap();
 
 			let old_value = qtable[state][action];
