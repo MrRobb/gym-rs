@@ -1,4 +1,9 @@
-#![allow(clippy::missing_errors_doc, clippy::missing_const_for_fn, clippy::missing_panics_doc, clippy::must_use_candidate)]
+#![allow(
+	clippy::missing_errors_doc,
+	clippy::missing_const_for_fn,
+	clippy::missing_panics_doc,
+	clippy::must_use_candidate
+)]
 
 #[macro_use]
 extern crate failure;
