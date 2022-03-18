@@ -1,0 +1,3 @@
+
+check:
+    cargo +nightly fmt
