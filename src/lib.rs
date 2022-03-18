@@ -5,15 +5,13 @@
 	clippy::must_use_candidate
 )]
 
-#[macro_use]
-extern crate failure;
 extern crate cpython;
 extern crate ndarray;
 extern crate rand;
 
 use cpython::{GILGuard, NoArgs, ObjectProtocol, PyModule, PyObject, PyTuple, Python, PythonObject, ToPyObject};
-use failure::Fail;
 use rand::Rng;
+use thiserror::Error;
 
 type DiscreteType = usize;
 type VectorType<T> = ndarray::Array1<T>;
@@ -21,15 +19,15 @@ pub type Action = SpaceData;
 pub type Observation = SpaceData;
 pub type Reward = f64;
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum GymError {
-	#[fail(display = "Invalid action")]
+	#[error("Invalid action")]
 	InvalidAction,
-	#[fail(display = "Invalid conversion")]
+	#[error("Invalid conversion")]
 	InvalidConversion,
-	#[fail(display = "Wrong type")]
+	#[error("Wrong type")]
 	WrongType,
-	#[fail(display = "Unable to parse step result")]
+	#[error("Unable to parse step result")]
 	WrongStepResult,
 }
 
