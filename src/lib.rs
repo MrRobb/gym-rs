@@ -1,10 +1,12 @@
+#![allow(clippy::missing_errors_doc, clippy::missing_const_for_fn, clippy::missing_panics_doc, clippy::must_use_candidate)]
+
 #[macro_use]
 extern crate failure;
 extern crate cpython;
 extern crate ndarray;
 extern crate rand;
 
-use cpython::*;
+use cpython::{GILGuard, NoArgs, ObjectProtocol, PyModule, PyObject, PyTuple, Python, PythonObject, ToPyObject};
 use failure::Fail;
 use rand::Rng;
 
@@ -82,7 +84,7 @@ impl SpaceData {
 		}
 	}
 
-	pub fn get_tuple(self) -> Result<VectorType<SpaceData>, GymError> {
+	pub fn get_tuple(self) -> Result<VectorType<Self>, GymError> {
 		match self {
 			SpaceData::TUPLE(s) => Ok(s),
 			_ => Err(GymError::WrongType),
@@ -108,7 +110,7 @@ impl SpaceData {
 }
 
 impl SpaceTemplate {
-	fn extract_data(&self, pyo: PyObject) -> Result<SpaceData, GymError> {
+	fn extract_data(&self, pyo: &PyObject) -> Result<SpaceData, GymError> {
 		let gil = Python::acquire_gil();
 		let py = gil.python();
 
@@ -132,7 +134,7 @@ impl SpaceTemplate {
 				let mut i = 0;
 				let mut item = pyo.get_item(py, i);
 				while item.is_ok() {
-					let pyo_item = self.extract_data(item.unwrap())?;
+					let pyo_item = self.extract_data(&item.unwrap())?;
 					tuple.push(pyo_item);
 					i += 1;
 					item = pyo.get_item(py, i);
@@ -142,7 +144,7 @@ impl SpaceTemplate {
 		}
 	}
 
-	fn extract_template(pyo: PyObject) -> SpaceTemplate {
+	fn extract_template(pyo: &PyObject) -> Self {
 		let gil = Python::acquire_gil();
 		let py = gil.python();
 
@@ -163,7 +165,7 @@ impl SpaceTemplate {
 					.expect("Unable to get attribute 'n'")
 					.extract::<usize>(py)
 					.expect("Unable to convert 'n' to usize");
-				SpaceTemplate::DISCRETE { n }
+				Self::DISCRETE { n }
 			},
 			"Box" => {
 				let high = pyo
@@ -192,7 +194,7 @@ impl SpaceTemplate {
 				debug_assert_eq!(low.len(), shape.iter().product());
 				high.iter().zip(low.iter()).for_each(|(h, l)| debug_assert!(h > l));
 
-				SpaceTemplate::BOX { high, low, shape }
+				Self::BOX { high, low, shape }
 			},
 			"Tuple" => {
 				let mut i = 0;
@@ -201,13 +203,13 @@ impl SpaceTemplate {
 
 				while item.is_ok() {
 					let pyo_item = item.unwrap();
-					let space = SpaceTemplate::extract_template(pyo_item);
+					let space = Self::extract_template(&pyo_item);
 					tuple.push(space);
 					i += 1;
 					item = pyo.get_item(py, i);
 				}
 
-				SpaceTemplate::TUPLE { spaces: tuple }
+				Self::TUPLE { spaces: tuple }
 			},
 			_ => unreachable!(),
 		}
@@ -253,7 +255,7 @@ impl<'a> Environment<'a> {
 			.env
 			.call_method(py, "reset", NoArgs, None)
 			.expect("Unable to call 'reset'");
-		self.observation_space.extract_data(result)
+		self.observation_space.extract_data(&result)
 	}
 
 	pub fn render(&self) {
@@ -282,9 +284,9 @@ impl<'a> Environment<'a> {
 					.into_iter()
 					.map(|s| s.into_pyo().unwrap())
 					.collect::<Vec<_>>();
-				let tpyo = PyTuple::new(py, &vpyo);
+				let tuple_pyo = PyTuple::new(py, &vpyo);
 				self.env
-					.call_method(py, "step", (tpyo,), None)
+					.call_method(py, "step", (tuple_pyo,), None)
 					.map_err(|_| GymError::InvalidAction)?
 			},
 		};
@@ -292,7 +294,7 @@ impl<'a> Environment<'a> {
 		let s = State {
 			observation: self
 				.observation_space
-				.extract_data(result.get_item(py, 0).map_err(|_| GymError::WrongStepResult)?)?,
+				.extract_data(&result.get_item(py, 0).map_err(|_| GymError::WrongStepResult)?)?,
 			reward: result
 				.get_item(py, 1)
 				.map_err(|_| GymError::WrongStepResult)?
@@ -310,7 +312,7 @@ impl<'a> Environment<'a> {
 
 	pub fn close(&self) {
 		let py = self.gil.python();
-		let _ = self
+		let _res = self
 			.env
 			.call_method(py, "close", NoArgs, None)
 			.expect("Unable to call 'close'");
@@ -352,7 +354,7 @@ impl Default for GymClient {
 			.extract(py)
 			.expect("Unable to call gym.__version__");
 
-		GymClient { gil, gym, version }
+		Self { gil, gym, version }
 	}
 }
 
@@ -367,11 +369,11 @@ impl GymClient {
 		Environment {
 			gil: &self.gil,
 			observation_space: SpaceTemplate::extract_template(
-				env.getattr(py, "observation_space")
+				&env.getattr(py, "observation_space")
 					.expect("Unable to get attribute 'observation_space'"),
 			),
 			action_space: SpaceTemplate::extract_template(
-				env.getattr(py, "action_space")
+				&env.getattr(py, "action_space")
 					.expect("Unable to get attribute 'action_space'"),
 			),
 			env,
@@ -451,7 +453,7 @@ mod tests {
 		let client = GymClient::default();
 		let env = client.make("CartPole-v1");
 		env.reset().unwrap();
-		let _ = env.action_space().sample().get_box().unwrap();
+		let _res = env.action_space().sample().get_box().unwrap();
 	}
 
 	#[test]
@@ -490,7 +492,7 @@ mod tests {
 	#[test]
 	fn test_gym_version() {
 		let client = GymClient::default();
-		assert!(!client.version().is_empty())
+		assert!(!client.version().is_empty());
 	}
 
 	#[test]

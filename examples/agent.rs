@@ -51,9 +51,9 @@ fn main() {
 			let next_state: usize = observation.get_discrete().unwrap();
 
 			let old_value = qtable[state][action];
-			let next_max = qtable[next_state].iter().cloned().fold(INFINITY, f64::max);
+			let next_max = qtable[next_state].iter().copied().fold(INFINITY, f64::max);
 
-			let next_value = (1.0 - ALPHA) * old_value + ALPHA * (reward + GAMMA * next_max);
+			let next_value = (1.0 - ALPHA).mul_add(old_value, ALPHA * GAMMA.mul_add(next_max, reward));
 			qtable[state][action] = next_value;
 
 			state = next_state;
