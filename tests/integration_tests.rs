@@ -104,8 +104,6 @@ mod tests {
 	#[test]
 	fn test_tuple_action() {
 		let client = GymClient::default();
-		// List all envs
-		println!("Envs: {:?}", client.list_all());
 		let env = client
 			.make(
 				"ReversedAddition3-v0",
