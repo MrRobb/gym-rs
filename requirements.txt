@@ -1,8 +1,1 @@
-gym==0.23.1
-atari_py==0.2.9
-Pillow==7.2.0
-opencv-python==4.3.0.36
-box2d-py==2.3.8
-imageio==2.9.0
-pygame==2.1.2
-ale-py==0.7.4
+gymnasium[all]==0.26.3
