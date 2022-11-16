@@ -14,7 +14,7 @@ OpenAI gym binding for Rust.
 
 Just install the requierements layed out in the [requirements.txt](https://github.com/MrRobb/gym-rs/blob/master/requirements.txt). 
 
-> If you don't have python installed, go [here](https://realpython.com/installing-python/#windows)
+> If you don't have python installed, go [here](https://realpython.com/installing-python/)
 
 ```sh
 curl "https://raw.githubusercontent.com/MrRobb/gym-rs/master/requirements.txt" > requirements.txt
@@ -29,16 +29,7 @@ Once everything is installed, just add this crate to your your Rust project.
 # Cargo.toml
 
 [dependencies]
-gym = "*"
-```
-
-Then, to use it just do:
-
-```rust
-// main.rs
-
-extern crate gym;
-/* ... */
+gym = "*" # Update * with the latest version
 ```
 
 ### Example
