@@ -10,4 +10,6 @@ pub enum GymError {
 	WrongType,
 	#[error("Unable to parse step result")]
 	WrongStepResult,
+	#[error("Unable to parse reset result")]
+	WrongResetResult,
 }

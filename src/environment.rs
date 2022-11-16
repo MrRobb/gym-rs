@@ -20,13 +20,17 @@ impl<'a> Environment<'a> {
 			.expect("Unable to call 'seed'");
 	}
 
-	pub fn reset(&self) -> Result<SpaceData, GymError> {
+	pub fn reset(&self) -> Result<(SpaceData, PyObject), GymError> {
 		let py = self.gil.python();
 		let result = self
 			.env
 			.call_method(py, "reset", NoArgs, None)
 			.expect("Unable to call 'reset'");
-		self.observation_space.extract_data(&result)
+		let observation = self
+			.observation_space
+			.extract_data(&result.get_item(py, 0).map_err(|_| GymError::WrongResetResult)?)?;
+		let info = result.get_item(py, 1).map_err(|_| GymError::WrongResetResult)?;
+		Ok((observation, info))
 	}
 
 	pub fn render(&self) {
@@ -69,6 +73,11 @@ impl<'a> Environment<'a> {
 				.map_err(|_| GymError::WrongStepResult)?,
 			is_done: result
 				.get_item(py, 2)
+				.map_err(|_| GymError::WrongStepResult)?
+				.extract(py)
+				.map_err(|_| GymError::WrongStepResult)?,
+			is_truncated: result
+				.get_item(py, 3)
 				.map_err(|_| GymError::WrongStepResult)?
 				.extract(py)
 				.map_err(|_| GymError::WrongStepResult)?,

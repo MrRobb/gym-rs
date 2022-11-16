@@ -33,7 +33,7 @@ fn main() {
 	for ep in 0..100_000 {
 		let mut epochs = 0;
 		let mut done = false;
-		let obs = env.reset().expect("Unable to reset");
+		let (obs, _info) = env.reset().expect("Unable to reset");
 		let mut state: usize = obs.get_discrete().unwrap();
 
 		while !done {
@@ -48,6 +48,7 @@ fn main() {
 				observation,
 				reward,
 				is_done,
+				is_truncated,
 			} = env.step(&Action::Discrete(action)).unwrap();
 			let next_state: usize = observation.get_discrete().unwrap();
 
@@ -59,7 +60,7 @@ fn main() {
 
 			state = next_state;
 			epochs += 1;
-			done = is_done;
+			done = is_done || is_truncated;
 		}
 
 		if ep % 100 == 0 {

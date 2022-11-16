@@ -27,7 +27,7 @@ impl Default for GymClient {
 		};
 
 		// Import gym
-		let gym = py.import("gym").expect("Error: import gym");
+		let gym = py.import("gymnasium").expect("Error: import gym");
 		let version = gym
 			.get(py, "__version__")
 			.expect("Unable to call gym.__version__")

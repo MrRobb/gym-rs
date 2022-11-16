@@ -27,4 +27,5 @@ pub struct State {
 	pub observation: SpaceData,
 	pub reward: f64,
 	pub is_done: bool,
+	pub is_truncated: bool,
 }

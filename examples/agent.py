@@ -2,7 +2,7 @@
 
 import random
 import numpy as np
-import gym
+import gymnasium as gym
 
 print(gym.__version__)
 
@@ -16,18 +16,19 @@ epsilon = 0.1
 q_table = np.zeros([env.observation_space.n, env.action_space.n])
 
 for i in range(0, 100_000):
-    state = env.reset()
+    state, info = env.reset()
 
     epochs, penalties, reward, = 0, 0, 0
     done = False
+    truncated = False
     
-    while not done:
+    while not (done or truncated):
         if random.uniform(0, 1) < epsilon:
             action = env.action_space.sample() # Explore action space
         else:
             action = np.argmax(q_table[state])
 
-        next_state, reward, done, info = env.step(action)
+        next_state, reward, done, truncated, info = env.step(action)
         
         old_value = q_table[state, action]
         next_max = np.max(q_table[next_state])

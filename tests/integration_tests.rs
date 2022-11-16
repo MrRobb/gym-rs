@@ -20,7 +20,7 @@ mod tests {
 		let client = GymClient::default();
 		let env = client.make("FrozenLake-v1");
 		env.seed(1002);
-		let obs = env.reset().unwrap();
+		let (obs, _) = env.reset().unwrap();
 		assert_eq!(0, obs.get_discrete().unwrap());
 		let action = SpaceData::Discrete(1);
 		let state = env.step(&action).unwrap();
