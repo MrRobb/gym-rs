@@ -1,9 +1,17 @@
+use gym::client::MakeOptions;
+
 extern crate gym;
 
 fn main() {
 	let gym = gym::client::GymClient::default();
 	let env = gym
-		.make("CartPole-v1", Some("human"))
+		.make(
+			"CartPole-v1",
+			Some(MakeOptions {
+				render_mode: Some(gym::client::RenderMode::Human),
+				..Default::default()
+			}),
+		)
 		.expect("Unable to create environment");
 
 	for _ in 0..10 {
