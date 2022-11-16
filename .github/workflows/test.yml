@@ -47,7 +47,10 @@ jobs:
         with:
           python-version: "3.10"
           cache: "pip" # caching pip dependencies
-      - run: pip install swig && pip install --user -r requirements.txt
+      - run: |
+          pip install swig
+          pip install gym[accept-rom-license]
+          pip install --user -r requirements.txt
 
       # Test
       - name: Run tests
