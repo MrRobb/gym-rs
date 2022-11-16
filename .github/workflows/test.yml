@@ -21,11 +21,12 @@ jobs:
       run: cargo build
 
     # Install module
-    - uses: actions/setup-python@v4
+    - name: Install module
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10'
         cache: 'pip' # caching pip dependencies
-    - run: pip install -r requirements.txt
+    - run: pip3 install -r requirements.txt
       
     # Test
     - name: Run tests
