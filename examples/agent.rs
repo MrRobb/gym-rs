@@ -33,7 +33,7 @@ fn main() {
 	for ep in 0..100_000 {
 		let mut epochs = 0;
 		let mut done = false;
-		let (obs, _info) = env.reset().expect("Unable to reset");
+		let (obs, _info) = env.reset(None).expect("Unable to reset");
 		let mut state: usize = obs.get_discrete().unwrap();
 
 		while !done {

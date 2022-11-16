@@ -19,8 +19,7 @@ mod tests {
 	fn test_seed() {
 		let client = GymClient::default();
 		let env = client.make("FrozenLake-v1");
-		env.seed(1002);
-		let (obs, _) = env.reset().unwrap();
+		let (obs, _) = env.reset(Some(1002)).unwrap();
 		assert_eq!(0, obs.get_discrete().unwrap());
 		let action = SpaceData::Discrete(1);
 		let state = env.step(&action).unwrap();
@@ -31,14 +30,14 @@ mod tests {
 	fn test_reset() {
 		let client = GymClient::default();
 		let env = client.make("CartPole-v1");
-		env.reset().unwrap();
+		env.reset(None).unwrap();
 	}
 
 	#[test]
 	fn test_box_observation_3d() {
 		let client = GymClient::default();
 		let env = client.make("VideoPinball-v4");
-		env.reset().unwrap();
+		env.reset(None).unwrap();
 		env.step(&env.action_space().sample()).unwrap();
 	}
 
@@ -46,7 +45,7 @@ mod tests {
 	fn test_step() {
 		let client = GymClient::default();
 		let env = client.make("CartPole-v1");
-		env.reset().unwrap();
+		env.reset(None).unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
 	}
@@ -56,7 +55,7 @@ mod tests {
 	fn test_invalid_action() {
 		let client = GymClient::default();
 		let env = client.make("CartPole-v1");
-		env.reset().unwrap();
+		env.reset(None).unwrap();
 		let action = Action::Discrete(500); // invalid action
 		env.step(&action).unwrap();
 	}
@@ -66,7 +65,7 @@ mod tests {
 	fn test_wrong_type() {
 		let client = GymClient::default();
 		let env = client.make("CartPole-v1");
-		env.reset().unwrap();
+		env.reset(None).unwrap();
 		let _res = env.action_space().sample().get_box().unwrap();
 	}
 
@@ -74,7 +73,7 @@ mod tests {
 	fn test_box_action() {
 		let client = GymClient::default();
 		let env = client.make("BipedalWalker-v3");
-		env.reset().unwrap();
+		env.reset(None).unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
 	}
@@ -89,7 +88,7 @@ mod tests {
 	fn test_tuple_obs() {
 		let client = GymClient::default();
 		let env = client.make("Blackjack-v1");
-		env.reset().unwrap();
+		env.reset(None).unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
 	}
@@ -98,7 +97,7 @@ mod tests {
 	fn test_tuple_action() {
 		let client = GymClient::default();
 		let env = client.make("RepeatCopy-v0");
-		env.reset().unwrap();
+		env.reset(None).unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
 	}
@@ -113,7 +112,7 @@ mod tests {
 	fn test_render() {
 		let client = GymClient::default();
 		let env = client.make("FrozenLake-v1");
-		env.reset().unwrap();
+		env.reset(None).unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
 		env.render();

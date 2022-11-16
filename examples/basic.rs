@@ -5,7 +5,7 @@ fn main() {
 	let env = gym.make("CartPole-v1");
 
 	for _ in 0..10 {
-		env.reset().expect("Unable to reset");
+		env.reset(None).expect("Unable to reset");
 
 		for _ in 0..100 {
 			let action = env.action_space().sample();
