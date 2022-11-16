@@ -26,7 +26,7 @@ fn argmax(v: &[f64]) -> usize {
 fn main() {
 	let mut rng = rand::thread_rng();
 	let client = GymClient::default();
-	let env = client.make("Taxi-v3");
+	let env = client.make("Taxi-v3", None).expect("Unable to create environment");
 	let mut qtable = [[0.0; 6]; 500];
 
 	// Exploration
@@ -39,8 +39,7 @@ fn main() {
 		while !done {
 			let action = if rng.gen_bool(EPSILON) {
 				env.action_space().sample().get_discrete().unwrap()
-			}
-			else {
+			} else {
 				argmax(&qtable[state])
 			};
 

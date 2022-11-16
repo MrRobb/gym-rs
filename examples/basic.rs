@@ -2,7 +2,9 @@ extern crate gym;
 
 fn main() {
 	let gym = gym::client::GymClient::default();
-	let env = gym.make("CartPole-v1");
+	let env = gym
+		.make("CartPole-v1", Some("human"))
+		.expect("Unable to create environment");
 
 	for _ in 0..10 {
 		env.reset(None).expect("Unable to reset");

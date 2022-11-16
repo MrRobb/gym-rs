@@ -1,3 +1,4 @@
+use cpython::PyObject;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -14,4 +15,8 @@ pub enum GymError {
 	WrongResetResult,
 	#[error("Invalid seed")]
 	InvalidSeed,
+	#[error("Invalid render mode")]
+	InvalidRenderMode,
+	#[error("Unable to make environment '{0}' with dict '{1:?}'")]
+	InvalidMake(String, Vec<(PyObject, PyObject)>),
 }

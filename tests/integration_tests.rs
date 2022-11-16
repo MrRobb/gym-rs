@@ -12,13 +12,15 @@ mod tests {
 	#[test]
 	fn test_make() {
 		let client = GymClient::default();
-		client.make("CartPole-v1");
+		client.make("CartPole-v1", None).expect("Unable to create environment");
 	}
 
 	#[test]
 	fn test_seed() {
 		let client = GymClient::default();
-		let env = client.make("FrozenLake-v1");
+		let env = client
+			.make("FrozenLake-v1", None)
+			.expect("Unable to create environment");
 		let (obs, _) = env.reset(Some(1002)).unwrap();
 		assert_eq!(0, obs.get_discrete().unwrap());
 		let action = SpaceData::Discrete(1);
@@ -29,14 +31,16 @@ mod tests {
 	#[test]
 	fn test_reset() {
 		let client = GymClient::default();
-		let env = client.make("CartPole-v1");
+		let env = client.make("CartPole-v1", None).expect("Unable to create environment");
 		env.reset(None).unwrap();
 	}
 
 	#[test]
 	fn test_box_observation_3d() {
 		let client = GymClient::default();
-		let env = client.make("VideoPinball-v4");
+		let env = client
+			.make("VideoPinball-v4", None)
+			.expect("Unable to create environment");
 		env.reset(None).unwrap();
 		env.step(&env.action_space().sample()).unwrap();
 	}
@@ -44,7 +48,7 @@ mod tests {
 	#[test]
 	fn test_step() {
 		let client = GymClient::default();
-		let env = client.make("CartPole-v1");
+		let env = client.make("CartPole-v1", None).expect("Unable to create environment");
 		env.reset(None).unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
@@ -54,7 +58,7 @@ mod tests {
 	#[should_panic]
 	fn test_invalid_action() {
 		let client = GymClient::default();
-		let env = client.make("CartPole-v1");
+		let env = client.make("CartPole-v1", None).expect("Unable to create environment");
 		env.reset(None).unwrap();
 		let action = Action::Discrete(500); // invalid action
 		env.step(&action).unwrap();
@@ -64,7 +68,7 @@ mod tests {
 	#[should_panic]
 	fn test_wrong_type() {
 		let client = GymClient::default();
-		let env = client.make("CartPole-v1");
+		let env = client.make("CartPole-v1", None).expect("Unable to create environment");
 		env.reset(None).unwrap();
 		let _res = env.action_space().sample().get_box().unwrap();
 	}
@@ -72,7 +76,9 @@ mod tests {
 	#[test]
 	fn test_box_action() {
 		let client = GymClient::default();
-		let env = client.make("BipedalWalker-v3");
+		let env = client
+			.make("BipedalWalker-v3", None)
+			.expect("Unable to create environment");
 		env.reset(None).unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
@@ -81,13 +87,13 @@ mod tests {
 	#[test]
 	fn test_tuple_template() {
 		let client = GymClient::default();
-		let _res = client.make("Blackjack-v1");
+		let _res = client.make("Blackjack-v1", None).expect("Unable to create environment");
 	}
 
 	#[test]
 	fn test_tuple_obs() {
 		let client = GymClient::default();
-		let env = client.make("Blackjack-v1");
+		let env = client.make("Blackjack-v1", None).expect("Unable to create environment");
 		env.reset(None).unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
@@ -96,7 +102,9 @@ mod tests {
 	#[test]
 	fn test_tuple_action() {
 		let client = GymClient::default();
-		let env = client.make("RepeatCopy-v0");
+		let env = client
+			.make("RepeatCopy-v0", None)
+			.expect("Unable to create environment");
 		env.reset(None).unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
@@ -111,7 +119,9 @@ mod tests {
 	#[test]
 	fn test_render() {
 		let client = GymClient::default();
-		let env = client.make("FrozenLake-v1");
+		let env = client
+			.make("FrozenLake-v1", None)
+			.expect("Unable to create environment");
 		env.reset(None).unwrap();
 		let action = env.action_space().sample();
 		env.step(&action).unwrap();
@@ -121,7 +131,9 @@ mod tests {
 	#[test]
 	fn test_close() {
 		let client = GymClient::default();
-		let env = client.make("FrozenLake-v1");
+		let env = client
+			.make("FrozenLake-v1", None)
+			.expect("Unable to create environment");
 		env.close();
 	}
 }

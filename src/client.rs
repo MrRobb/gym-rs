@@ -1,7 +1,7 @@
-use cpython::{GILGuard, ObjectProtocol, PyModule, Python};
+use cpython::{GILGuard, ObjectProtocol, PyDict, PyModule, Python};
 
-use crate::environment::Environment;
 use crate::space_template::SpaceTemplate;
+use crate::{environment::Environment, error::GymError};
 
 pub struct GymClient {
 	pub gil: GILGuard,
@@ -39,14 +39,19 @@ impl Default for GymClient {
 }
 
 impl GymClient {
-	pub fn make(&self, env_id: &str) -> Environment {
+	pub fn make(&self, env_id: &str, render_mode: Option<&str>) -> Result<Environment, GymError> {
 		let py = self.gil.python();
+		let dict = PyDict::new(py);
+		if let Some(render_mode) = render_mode {
+			dict.set_item(py, "render_mode", render_mode)
+				.map_err(|_| GymError::InvalidRenderMode)?;
+		}
 		let env = self
 			.gym
-			.call(py, "make", (env_id,), None)
-			.expect("Unable to call 'make'");
+			.call(py, "make", (env_id,), Some(&dict))
+			.map_err(|_| GymError::InvalidMake(env_id.to_owned(), dict.items(py)))?;
 
-		Environment {
+		Ok(Environment {
 			gil: &self.gil,
 			observation_space: SpaceTemplate::extract_template(
 				&env.getattr(py, "observation_space")
@@ -57,7 +62,7 @@ impl GymClient {
 					.expect("Unable to get attribute 'action_space'"),
 			),
 			env,
-		}
+		})
 	}
 
 	pub fn version(&self) -> &str {
