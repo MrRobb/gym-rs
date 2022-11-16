@@ -2,7 +2,7 @@
 name = "gym"
 version = "2.2.1"
 authors = ["Roberto <rob.ariosa@hotmail.com>"]
-edition = "2018"
+edition = "2021"
 
 description = "Open AI environments bindings for Rust"
 repository = "https://github.com/MrRobb/gym-rs"
