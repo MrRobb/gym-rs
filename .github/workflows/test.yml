@@ -2,41 +2,43 @@ name: Rust
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    # Build
-    - name: Build
-      run: cargo build
 
-    # Install module
-    - name: Install module
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-        cache: 'pip' # caching pip dependencies
-    - run: pip3 install -r requirements.txt
-      
-    # Test
-    - name: Run tests
-      run: cargo test --verbose
-    
-    # Code coverage
-    - name: Codecov
-      uses: codecov/codecov-action@v3.1.1
-      with:
-        # Repository upload token - get it from codecov.io. Required only for private repositories
-        token: ${{ secrets.CODECOV_TOKEN }}
-        fail_ci_if_error: true
-        verbose: true
+    steps:
+      - uses: actions/checkout@v3
+
+      # Setup toolchain
+      - name: Setup toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      # Install module
+      - name: Install module
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "pip" # caching pip dependencies
+      - run: pip install --user -r requirements.txt
+
+      # Test
+      - name: Run tests
+        run: cargo test --verbose
+
+      # Code coverage
+      - name: Codecov
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          # Repository upload token - get it from codecov.io. Required only for private repositories
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          verbose: true
