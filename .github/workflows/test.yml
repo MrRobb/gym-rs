@@ -38,7 +38,6 @@ jobs:
       - name: Codecov
         uses: codecov/codecov-action@v3.1.1
         with:
-          # Repository upload token - get it from codecov.io. Required only for private repositories
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           verbose: true
