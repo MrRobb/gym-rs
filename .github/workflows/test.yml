@@ -11,15 +11,21 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v3
     
     # Build
     - name: Build
       run: cargo build
+
+    # Install module
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip' # caching pip dependencies
+    - run: pip install -r requirements.txt
       
     # Test
     - name: Run tests
