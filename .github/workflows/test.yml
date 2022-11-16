@@ -1,0 +1,35 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    # Build
+    - name: Build
+      run: cargo build --verbose
+      
+    # Test
+    - name: Run tests
+      run: cargo test --verbose
+    
+    # Code coverage
+    - name: Codecov
+      uses: codecov/codecov-action@v3.1.1
+      with:
+        # Repository upload token - get it from codecov.io. Required only for private repositories
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true
+        verbose: true
