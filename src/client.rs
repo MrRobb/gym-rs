@@ -26,9 +26,6 @@ impl Default for GymClient {
 			Result::Err(_) => {},
 		};
 
-		// Print executable path
-		eprintln!("Executable path: {}", sys.get(py, "executable").unwrap());
-
 		// Import gym
 		let gym = py.import("gymnasium").expect("Error: import gym");
 		let version = gym
