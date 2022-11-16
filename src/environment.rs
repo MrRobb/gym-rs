@@ -1,4 +1,4 @@
-use cpython::{GILGuard, NoArgs, ObjectProtocol, PyObject, PyTuple, ToPyObject};
+use cpython::{GILGuard, NoArgs, ObjectProtocol, PyDict, PyObject, PyTuple};
 
 use crate::error::GymError;
 use crate::space_data::SpaceData;
@@ -15,13 +15,13 @@ pub struct Environment<'a> {
 impl<'a> Environment<'a> {
 	pub fn reset(&self, seed: Option<u64>) -> Result<(SpaceData, PyObject), GymError> {
 		let py = self.gil.python();
-		let args = match seed {
-			Some(seed) => (seed,).into_py_object(py),
-			None => NoArgs.into_py_object(py),
-		};
+		let dict = PyDict::new(py);
+		if let Some(seed) = seed {
+			dict.set_item(py, "seed", seed).map_err(|_| GymError::InvalidSeed)?;
+		}
 		let result = self
 			.env
-			.call_method(py, "reset", args, None)
+			.call_method(py, "reset", NoArgs, Some(&dict))
 			.expect("Unable to call 'reset'");
 		let observation = self
 			.observation_space

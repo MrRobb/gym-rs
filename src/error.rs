@@ -12,4 +12,6 @@ pub enum GymError {
 	WrongStepResult,
 	#[error("Unable to parse reset result")]
 	WrongResetResult,
+	#[error("Invalid seed")]
+	InvalidSeed,
 }
