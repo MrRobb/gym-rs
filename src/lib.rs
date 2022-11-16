@@ -3,7 +3,8 @@
 	clippy::missing_const_for_fn,
 	clippy::missing_panics_doc,
 	clippy::must_use_candidate,
-	clippy::module_name_repetitions
+	clippy::module_name_repetitions,
+	clippy::use_self
 )]
 
 extern crate cpython;
